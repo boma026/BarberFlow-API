@@ -10,6 +10,11 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("BarberFlow API está online e operante!"))
+}
+
 // CreateCustomer cria um cliente no banco de dados
 func CreateCustomer(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// 1. Conexão com o banco de dados (Ajuste a senha de acordo com o seu Postgres local)
-	connStr := "user=postgres password=suasenha dbname=barberflow sslmode=disable"
+	connStr := "host=db user=postgres password=rootpassword dbname=barberflow sslmode=disable"
 	conn, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal("Não foi possível conectar ao banco:", err)
