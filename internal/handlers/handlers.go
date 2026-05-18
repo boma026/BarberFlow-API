@@ -15,7 +15,6 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("BarberFlow API está online e operante!"))
 }
 
-// CreateCustomer cria um cliente no banco de dados
 func CreateCustomer(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
@@ -42,7 +41,6 @@ func CreateCustomer(q *db.Queries) http.HandlerFunc {
 	}
 }
 
-// ListCustomers lista todos os clientes
 func ListCustomers(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		customers, err := q.ListCustomers(r.Context())
@@ -55,7 +53,6 @@ func ListCustomers(q *db.Queries) http.HandlerFunc {
 	}
 }
 
-// GetCustomerNested retorna o cliente com a lista de agendamentos dentro dele (1:N)
 func GetCustomerNested(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := chi.URLParam(r, "id")
@@ -76,7 +73,6 @@ func GetCustomerNested(q *db.Queries) http.HandlerFunc {
 	}
 }
 
-// UpdateCustomer atualiza um cliente
 func UpdateCustomer(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := chi.URLParam(r, "id")
@@ -101,7 +97,6 @@ func UpdateCustomer(q *db.Queries) http.HandlerFunc {
 	}
 }
 
-// DeleteCustomer remove um cliente
 func DeleteCustomer(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := chi.URLParam(r, "id")
@@ -116,7 +111,13 @@ func DeleteCustomer(q *db.Queries) http.HandlerFunc {
 	}
 }
 
-// CreateAppointment cria um novo agendamento para um cliente (Lado N do relacionamento)
+/*
+	{
+	  "customer_id": 1,
+	  "appointment_date": "2026-05-20T14:30:00Z",
+	  "service_name": "Corte de Cabelo e Barba"
+	}
+*/
 func CreateAppointment(q *db.Queries) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {

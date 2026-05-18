@@ -10,7 +10,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// setupTestDB conecta ao banco durante os testes
 func setupTestDB(t *testing.T) *db.Queries {
 	connStr := "host=localhost user=postgres password=rootpassword dbname=barberflow sslmode=disable"
 	conn, err := sql.Open("postgres", connStr)
