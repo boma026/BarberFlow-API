@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"time"
 )
@@ -49,6 +50,28 @@ func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) 
 	return i, err
 }
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, password_hash, refresh_token, created_at
+`
+
+type CreateUserParams struct {
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, arg.Email, arg.PasswordHash)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.RefreshToken,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const deleteCustomer = `-- name: DeleteCustomer :exec
 DELETE FROM customers WHERE id = $1
 `
@@ -81,7 +104,6 @@ type GetCustomerWithAppointmentsNestedRow struct {
 	Appointments json.RawMessage `json:"appointments"`
 }
 
-// Esta query resolve o requisito do professor: Traz o cliente com agendamentos aninhados
 func (q *Queries) GetCustomerWithAppointmentsNested(ctx context.Context, id int32) (GetCustomerWithAppointmentsNestedRow, error) {
 	row := q.db.QueryRowContext(ctx, getCustomerWithAppointmentsNested, id)
 	var i GetCustomerWithAppointmentsNestedRow
@@ -90,6 +112,23 @@ func (q *Queries) GetCustomerWithAppointmentsNested(ctx context.Context, id int3
 		&i.Name,
 		&i.Email,
 		&i.Appointments,
+	)
+	return i, err
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, password_hash, refresh_token, created_at FROM users WHERE email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.RefreshToken,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -133,5 +172,19 @@ type UpdateCustomerParams struct {
 
 func (q *Queries) UpdateCustomer(ctx context.Context, arg UpdateCustomerParams) error {
 	_, err := q.db.ExecContext(ctx, updateCustomer, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const updateRefreshToken = `-- name: UpdateRefreshToken :exec
+UPDATE users SET refresh_token = $2 WHERE id = $1
+`
+
+type UpdateRefreshTokenParams struct {
+	ID           int32          `json:"id"`
+	RefreshToken sql.NullString `json:"refresh_token"`
+}
+
+func (q *Queries) UpdateRefreshToken(ctx context.Context, arg UpdateRefreshTokenParams) error {
+	_, err := q.db.ExecContext(ctx, updateRefreshToken, arg.ID, arg.RefreshToken)
 	return err
 }

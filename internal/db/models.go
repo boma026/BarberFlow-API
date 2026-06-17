@@ -5,6 +5,7 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -19,4 +20,12 @@ type Customer struct {
 	ID    int32  `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
+}
+
+type User struct {
+	ID           int32          `json:"id"`
+	Email        string         `json:"email"`
+	PasswordHash string         `json:"password_hash"`
+	RefreshToken sql.NullString `json:"refresh_token"`
+	CreatedAt    sql.NullTime   `json:"created_at"`
 }

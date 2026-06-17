@@ -7,10 +7,11 @@ import (
 
 	"github.com/boma026/BarberFlow-API/internal/db"
 	"github.com/boma026/BarberFlow-API/internal/handlers"
+	"github.com/boma026/BarberFlow-API/internal/middleware"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 
-	_ "github.com/lib/pq" // Driver do Postgres
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -25,9 +26,11 @@ func main() {
 	queries := db.New(conn)
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
 
+	r.Use(middleware.SecurityHeaders)
+	r.Use(middleware.RateLimiter())
 	r.Post("/customers", handlers.CreateCustomer(queries))
 	r.Get("/customers", handlers.ListCustomers(queries))
 	r.Get("/customers/{id}", handlers.GetCustomerNested(queries))
