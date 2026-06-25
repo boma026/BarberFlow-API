@@ -68,7 +68,7 @@ func LoginUser(q *db.Queries) http.HandlerFunc {
 
 		q.UpdateRefreshToken(r.Context(), db.UpdateRefreshTokenParams{
 			ID: user.ID,
-			// Correção aplicada na linha abaixo:
+
 			RefreshToken: sql.NullString{String: refreshToken, Valid: true},
 		})
 

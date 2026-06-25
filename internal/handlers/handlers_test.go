@@ -22,7 +22,6 @@ func setupTestDB(t *testing.T) *db.Queries {
 	return db.New(conn)
 }
 
-// 1. Teste de Rota Pública Simples
 func TestHealthCheck(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/health", nil)
 	rr := httptest.NewRecorder()
@@ -34,12 +33,10 @@ func TestHealthCheck(t *testing.T) {
 	}
 }
 
-// 2. Teste da Proteção OWASP (Security Headers)
 func TestSecurityHeaders_Injected(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/health", nil)
 	rr := httptest.NewRecorder()
 
-	// Passa a rota por dentro do middleware de segurança
 	handler := middleware.SecurityHeaders(http.HandlerFunc(HealthCheck))
 	handler.ServeHTTP(rr, req)
 
@@ -48,7 +45,6 @@ func TestSecurityHeaders_Injected(t *testing.T) {
 	}
 }
 
-// 3. Teste de Bloqueio sem Token (Auth Middleware)
 func TestAccessProtectedWithoutToken(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/customers", nil)
 	rr := httptest.NewRecorder()
@@ -62,7 +58,6 @@ func TestAccessProtectedWithoutToken(t *testing.T) {
 	}
 }
 
-// 4. Teste de Bloqueio com Token Falso
 func TestAccessProtectedWithInvalidToken(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/customers", nil)
 	req.Header.Set("Authorization", "Bearer token_completamente_falso_e_invalido")
