@@ -26,18 +26,26 @@ func main() {
 	queries := db.New(conn)
 
 	r := chi.NewRouter()
+
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
-
 	r.Use(middleware.SecurityHeaders)
 	r.Use(middleware.RateLimiter())
-	r.Post("/customers", handlers.CreateCustomer(queries))
-	r.Get("/customers", handlers.ListCustomers(queries))
-	r.Get("/customers/{id}", handlers.GetCustomerNested(queries))
-	r.Put("/customers/{id}", handlers.UpdateCustomer(queries))
-	r.Delete("/customers/{id}", handlers.DeleteCustomer(queries))
 
-	r.Post("/appointments", handlers.CreateAppointment(queries))
+	r.Get("/health", handlers.HealthCheck)
+	r.Post("/register", handlers.RegisterUser(queries))
+	r.Post("/login", handlers.LoginUser(queries))
+	r.Post("/refresh", handlers.RefreshToken(queries))
+
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.AuthMiddleware)
+
+		r.Post("/customers", handlers.CreateCustomer(queries))
+		r.Get("/customers", handlers.ListCustomers(queries))
+		r.Get("/customers/{id}", handlers.GetCustomerNested(queries))
+
+		r.Post("/appointments", handlers.CreateAppointment(queries))
+	})
 
 	println("Servidor BarberFlow rodando em http://localhost:8080")
 	http.ListenAndServe(":8080", r)
